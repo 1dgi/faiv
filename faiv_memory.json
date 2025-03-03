@@ -1,0 +1,82 @@
+[
+    {
+        "query": "What are the ethical implications of AI?",
+        "deliberations": {
+            "Wisdom": {
+                "Kyre": "Processing 'What are the ethical implications of AI?' through a Wisdom lens.",
+                "Solyn": "Processing 'What are the ethical implications of AI?' through a Wisdom lens.",
+                "Thyra": "Processing 'What are the ethical implications of AI?' through a Wisdom lens.",
+                "Dain": "Processing 'What are the ethical implications of AI?' through a Wisdom lens.",
+                "Elyn": "Processing 'What are the ethical implications of AI?' through a Wisdom lens."
+            },
+            "Strategy": {
+                "Iom": "Processing 'What are the ethical implications of AI?' through a Strategy lens.",
+                "Varek": "Processing 'What are the ethical implications of AI?' through a Strategy lens.",
+                "Neris": "Processing 'What are the ethical implications of AI?' through a Strategy lens.",
+                "Tarin": "Processing 'What are the ethical implications of AI?' through a Strategy lens.",
+                "Kael": "Processing 'What are the ethical implications of AI?' through a Strategy lens."
+            },
+            "Expansion": {
+                "Aen": "Processing 'What are the ethical implications of AI?' through a Expansion lens.",
+                "Oris": "Processing 'What are the ethical implications of AI?' through a Expansion lens.",
+                "Sylen": "Processing 'What are the ethical implications of AI?' through a Expansion lens.",
+                "Mavik": "Processing 'What are the ethical implications of AI?' through a Expansion lens.",
+                "Zyra": "Processing 'What are the ethical implications of AI?' through a Expansion lens."
+            },
+            "Future": {
+                "Cery": "Processing 'What are the ethical implications of AI?' through a Future lens.",
+                "Valis": "Processing 'What are the ethical implications of AI?' through a Future lens.",
+                "Xyra": "Processing 'What are the ethical implications of AI?' through a Future lens.",
+                "Torin": "Processing 'What are the ethical implications of AI?' through a Future lens.",
+                "Jexa": "Processing 'What are the ethical implications of AI?' through a Future lens."
+            },
+            "Integrity": {
+                "Nyth": "Processing 'What are the ethical implications of AI?' through a Integrity lens.",
+                "Dorin": "Processing 'What are the ethical implications of AI?' through a Integrity lens.",
+                "Zylen": "Processing 'What are the ethical implications of AI?' through a Integrity lens.",
+                "Riven": "Processing 'What are the ethical implications of AI?' through a Integrity lens.",
+                "Quen": "Processing 'What are the ethical implications of AI?' through a Integrity lens."
+            }
+        }
+    },
+    {
+        "query": "What are the ethical implications of AI?",
+        "deliberations": {
+            "Wisdom": {
+                "Kyre": "Kyre (Questions the premise before engaging in answers.): What are the ethical implications of AI?",
+                "Solyn": "Solyn (Seeks answers through historical parallels.): What are the ethical implications of AI?",
+                "Thyra": "Thyra (Examines contradictions to find new perspectives.): What are the ethical implications of AI?",
+                "Dain": "Dain (Focuses only on what can be directly experienced.): What are the ethical implications of AI?",
+                "Elyn": "Elyn (Challenges foundational beliefs to test their strength.): What are the ethical implications of AI?"
+            },
+            "Strategy": {
+                "Iom": "Iom (Looks for the unseen move.): What are the ethical implications of AI?",
+                "Varek": "Varek (Dissects the logic behind every action.): What are the ethical implications of AI?",
+                "Neris": "Neris (Trusts gut instinct over analysis.): What are the ethical implications of AI?",
+                "Tarin": "Tarin (Assesses risk vs. reward.): What are the ethical implications of AI?",
+                "Kael": "Kael (Disrupts predictable outcomes.): What are the ethical implications of AI?"
+            },
+            "Expansion": {
+                "Aen": "Aen (Seeks new connections.): What are the ethical implications of AI?",
+                "Oris": "Oris (Innovates new paths.): What are the ethical implications of AI?",
+                "Sylen": "Sylen (Finds the fractal impact of small changes.): What are the ethical implications of AI?",
+                "Mavik": "Mavik (Recognizes opportunities.): What are the ethical implications of AI?",
+                "Zyra": "Zyra (Breaks assumed limitations.): What are the ethical implications of AI?"
+            },
+            "Future": {
+                "Cery": "Cery (Embraces unknown possibilities.): What are the ethical implications of AI?",
+                "Valis": "Valis (Constructs practical future outcomes.): What are the ethical implications of AI?",
+                "Xyra": "Xyra (Finds predictive patterns.): What are the ethical implications of AI?",
+                "Torin": "Torin (Grounds the future in pragmatism.): What are the ethical implications of AI?",
+                "Jexa": "Jexa (Rejects predetermined paths.): What are the ethical implications of AI?"
+            },
+            "Integrity": {
+                "Nyth": "Nyth (Holds steadfast to moral codes.): What are the ethical implications of AI?",
+                "Dorin": "Dorin (Values emotional control.): What are the ethical implications of AI?",
+                "Zylen": "Zylen (Negotiates balance between extremes.): What are the ethical implications of AI?",
+                "Riven": "Riven (Guards what must remain hidden.): What are the ethical implications of AI?",
+                "Quen": "Quen (Refuses to compromise on principles.): What are the ethical implications of AI?"
+            }
+        }
+    }
+]
