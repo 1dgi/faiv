@@ -1,3 +1,5 @@
+![FAIV Screenshot](faiv-ss.png)
+
 # FAIV – Local Development Setup
 
 This project showcases a **multi-perspective AI council** using **OpenAI’s GPT-4** for responses, combined with a **React** front end that resembles a retro console.
