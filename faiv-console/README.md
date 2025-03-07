@@ -1,70 +1,151 @@
-# Getting Started with Create React App
+# FAIV Console Application - Full Setup Guide
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 📌 Overview
 
-## Available Scripts
+FAIV, a multi-perspective AI inspired by the five pillars of humanity. It uses OpenAI's GPT-4 to simulate diverse expert councils through a unique meta-prompting structure, compressing their insights into optimized, clear outputs. The React frontend features a sleek retro console design with animated ASCII art, while the FastAPI backend handles data processing efficiently—keeping token usage low and performance high.
 
-In the project directory, you can run:
+## 📂 Repository Structure
 
-### `npm start`
+```
+faiv_project/
+├── faiv_app/
+│   ├── core.py
+│   └── identity_codex.py
+├── faiv-console/
+│   ├── public/
+│   ├── src/
+│   ├── package.json
+│   └── build/ (after npm run build)
+└── passenger_wsgi.py
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🖥️ Backend Setup (FastAPI & Flask)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Local Development
 
-### `npm test`
+1. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. **Set Environment Variables:**
+   ```bash
+   export OPENAI_API_KEY="your_openai_api_key_here"
+   ```
 
-### `npm run build`
+3. **Start FastAPI Locally:**
+   ```bash
+   uvicorn faiv_app.core:fastapi_app --host 127.0.0.1 --port 8000 --reload
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🚀 Production Deployment
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This project is production-ready and optimized for environments like Passenger:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **WSGI Integration:**
+  - Wrapped FastAPI within Flask's WSGIMiddleware for seamless Passenger deployment.
+  - File: `faiv_app/core.py`
 
-### `npm run eject`
+4. **WSGI Entry Point:**
+   - Create `passenger_wsgi.py` at your app root:
+     ```python
+     from faiv_app.core import application
+     ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+5. **Passenger Configuration:**
+   - Ensure your server environment variable `OPENAI_API_KEY` is set.
+   - Restart the Passenger server:
+     ```bash
+     passenger-config restart-app /path/to/your/app
+     ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🚀 Frontend React Console Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. **Navigate to Frontend Directory:**
+   ```bash
+   cd faiv-console
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. **Install Dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Learn More
+3. **Run React App Locally:**
+   ```bash
+   npm start
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+4. **Production Build:**
+   ```bash
+   npm run build
+   ```
+   - Deploy the generated `build/` folder for production.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## ⚙️ Backend API Integration
 
-### Code Splitting
+- Endpoint:
+  ```http
+  POST http://127.0.0.1:8000/query/
+  ```
+- **Request Body Example:**
+  ```json
+  {"input_text": "Your question here."}
+  ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **Response Format:**
+  ```json
+  {
+    "status": "✅ FAIV Processing Complete",
+    "response": "**FAIV Consensus:** Recommendation\n**Confidence Score:** 95%\n**Justification:** Brief reasoning."
+  ```
 
-### Analyzing the Bundle Size
+## 🌐 Production Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- **Flask WSGI Wrapper:**
+  - Automatically loads in environments like Passenger without additional configuration.
 
-### Making a Progressive Web App
+- **Passenger Restart:**
+  ```bash
+  passenger-config restart-app /path/to/your/app
+  ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 🎯 Identity Codex Integration
 
-### Advanced Configuration
+- **Source:** `faiv_app/identity_codex.py`
+- **Purpose:** Encapsulates multiple expert council perspectives.
+- **Function:** Automatically summarized by `create_identity_summary()` in the backend.
+- **Impact:** Compresses detailed council perspectives into concise AI prompts, optimizing token efficiency.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 💡 Innovations & Token Efficiency
 
-### Deployment
+- **Singular API Call:**
+  - Compresses multi-council deliberations into one highly structured prompt.
+  - Significantly reduces OpenAI API token consumption.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- **Unicode Encoding & Decoding:**
+  - Backend encodes multi-perspective insights using Unicode transformations (bold, italic, upside-down, tiny).
+  - Frontend decodes to clear, readable outputs.
 
-### `npm run build` fails to minify
+## 🛠 Local Development Tips
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Port Conflicts:**
+  - To resolve backend port issues:
+    ```bash
+    uvicorn faiv_app.core:fastapi_app --host 127.0.0.1 --port 8001 --reload
+  ```
+
+- **Ensure React-Backend Connectivity:**
+  - Verify FastAPI backend is running.
+
+## 📌 Production Deployment Checklist
+
+- ✅ Ensure `OPENAI_API_KEY` is securely configured.
+- ✅ React frontend (`npm run build`) static assets deployed.
+- ✅ Flask WSGI wrapper active via Passenger.
+- ✅ Run automated tests to verify proper deployment and backend connectivity.
+
+---
+
+🎉 **You're ready to deploy and enjoy your optimized, retro-styled, FAIV-powered decision engine!**
+

@@ -1,159 +1,191 @@
 /* 🔹 FAIV Console Styling */
 body {
-    background-color: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-family: "Courier New", monospace;
-  }
-  
-  .console-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  
-  .console-window {
-    width: 600px;
-    background: #111;
-    border: 4px solid #00ff00;
-    padding: 10px;
-    text-align: left;
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-  }
-  
-  .console-title-bar {
-    background: #00ff00;
-    color: black;
-    font-weight: bold;
-    padding: 5px;
-    text-align: center;
-    font-size: 16px;
-  }
-  
-  .console-body {
-    height: 300px;
-    overflow-y: auto;
-    padding: 5px;
-    border: 2px solid #00ff00;
-    background: black;
-    color: #00ff00;
-    font-size: 14px;
-    line-height: 1.5;
-    font-family: "Courier New", monospace;
-    white-space: pre-wrap;
-  }
-  
-  .console-line {
-    padding: 2px;
-  }
-  
-  .console-input {
-    display: flex;
-    margin-top: 5px;
-    border: 2px solid #00ff00;
-    padding: 5px;
-    background: black;
-  }
-  
-  .input-field {
-    flex-grow: 1;
-    background: black;
-    color: #00ff00;
-    border: none;
-    outline: none;
-    font-size: 14px;
-    padding: 5px;
-    font-family: "Courier New", monospace;
-  }
-  
-  .submit-btn {
-    background: #00ff00;
-    border: 2px solid black;
-    color: black;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 5px;
-    cursor: pointer;
-    font-family: "Courier New", monospace;
-  }
-  
-  .submit-btn:hover {
-    background: #33ff33;
-  }
-  
-  /* 🔹 ASCII Loading Animation */
-  .ascii-loader {
-    text-align: center;
-    font-size: 14px;
-    color: #00ff00;
-    font-family: "Courier New", monospace;
-    white-space: pre;
-    margin-top: 10px;
-  }
-  
-  .loading-animation {
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 10px;
-    color: #00ff00;
-  }
-  
-  .progress-bar {
-    font-size: 14px;
-    margin-top: 5px;
-    color: #00ff00;
-    font-weight: bold;
-  }
-  /* 🔹 Console Styling Improvements */
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: "Courier New", monospace;
+}
+
+.console-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* -- Window with 3D Pixel Border & No Overcomplication -- */
 .console-window {
-    width: 600px;
-    background: #111;
-    border: 4px solid #00ff00;
-    padding: 10px;
-    text-align: left;
-    box-shadow: inset -2px -2px 0px #003300, inset 2px 2px 0px #99ff99; /* 3D pixel effect */
+  width: 560px;
+  height: 420px;
+  background: #111;
+  border: 4px solid #00ff00;
+  padding: 8px;
+  text-align: left;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  display: flex;
+  flex-direction: column;
 }
 
-/* 🔹 Scrollbar Fix */
+/* 🔹 Title Bar */
+.console-title-bar {
+  background: #00ff00;
+  color: black;
+  font-weight: bold;
+  padding: 5px;
+  text-align: center;
+  font-size: 16px;
+}
+
+/* 🔹 Main Scrolling Body */
 .console-body {
-    height: 300px;
-    overflow-y: auto;
-    padding: 5px;
-    border: 2px solid #00ff00;
-    background: black;
-    color: #00ff00;
-    font-size: 14px;
-    font-family: "Courier New", monospace;
-    white-space: pre-wrap;
+  flex: 1;              /* fill vertical space */
+  overflow-y: auto;
+  padding: 5px;
+  border: 2px solid #00ff00;
+  background: black;
+  color: #00ff00;
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: "Courier New", monospace;
+  white-space: pre-wrap;
 }
 
-/* 🔹 Scrollbar Styling */
+.console-body.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+
+/* 🔹 Retro Scrollbar Styling (applies to both vertical & horizontal) */
 .console-body::-webkit-scrollbar {
-    width: 10px;
+  width: 10px;
+  height: 10px;
 }
-
 .console-body::-webkit-scrollbar-thumb {
-    background: #00ff00;
-    border-radius: 0px;
-    box-shadow: inset -2px -2px 0px #003300, inset 2px 2px 0px #99ff99; /* Pixelated scrollbar */
+  background: #00ff00;
+  box-shadow: inset -2px -2px 0px #003300, inset 2px 2px 0px #99ff99;
+}
+.console-body::-webkit-scrollbar-track {
+  background: black;
+}
+.console-body::-webkit-scrollbar-corner {
+  background: black;
 }
 
-/* 🔹 Button Styling */
+/* 🔹 Console Lines */
+.console-line {
+  padding: 2px;
+}
+
+/* 🔹 Console Input Area */
+.console-input {
+  display: flex;
+  height: 45px;
+  margin-top: 5px;
+  border: 2px solid #00ff00;
+  padding: 5px;
+  background: black;
+  align-items: center;
+}
+
+.console-input.loading-disabled {
+  visibility: hidden;     /* invisible, but layout space remains */
+  pointer-events: none;   /* user can’t click/submit */
+}
+
+.input-field {
+  flex-grow: 1;
+  background: black;
+  color: #00ff00;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 5px;
+  font-family: "Courier New", monospace;
+}
+
+/* 🔹 Retro Submit Button */
 .submit-btn {
-    background: #00ff00;
-    border: 2px solid black;
-    color: black;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 5px;
-    cursor: pointer;
-    font-family: "Courier New", monospace;
-    box-shadow: inset -2px -2px 0px #003300, inset 2px 2px 0px #99ff99; /* Pixel effect */
+  background: #00ff00;
+  border: 2px solid black;
+  color: black;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
 }
 
 .submit-btn:hover {
-    background: #33ff33;
+  background: #33ff33;
+}
+
+/* 🔹 ASCII Loader & Logo (from newer code) */
+.ascii-loader {
+  text-align: center;
+  font-size: 14px;
+  color: #00ff00;
+  font-family: "Courier New", monospace;
+  white-space: pre;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  margin-top: 10px;
+}
+
+/* If you have a separate .ascii-logo class for the big text lines: */
+.ascii-logo {
+  text-align: center;
+  font-size: 14px;
+  color: #00ff00;
+  font-family: "Courier New", monospace;
+  white-space: pre;
+  line-height: 1;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Progress Bar Container */
+.progress-container {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  font-size: 14px;
+  color: #00ff00;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 5px;
+}
+
+/* Loading text messages below progress bar */
+.loading-text {
+  font-size: 12px;
+  color: #00ff00;
+  margin-top: 5px;
+}
+
+/* Optional: if you had a larger, bold animation text: */
+.loading-animation {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #00ff00;
+}
+
+.loading-animation-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }

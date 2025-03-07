@@ -1,11 +1,7 @@
+// LoadingAnimation.js
 import React, { useState, useEffect } from "react";
 
-const frames = [
-  "◐ Processing...",
-  "◓ Processing...",
-  "◑ Processing...",
-  "◒ Processing..."
-];
+const frames = ["◐", "◓", "◑", "◒"];
 
 const LoadingAnimation = () => {
   const [index, setIndex] = useState(0);
@@ -17,7 +13,7 @@ const LoadingAnimation = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return <div className="loading">{frames[index]}</div>;
+  return <span className="loading-animation">{frames[index]}</span>;
 };
 
 export default LoadingAnimation;
