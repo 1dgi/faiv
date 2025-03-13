@@ -1,191 +1,375 @@
-/* 🔹 FAIV Console Styling */
+/* =========================================
+   1) Global & Body
+========================================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+*, *::before, *::after {
+  box-sizing: inherit;
+}
 body {
-  background-color: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   font-family: "Courier New", monospace;
+  background: black;
+  color: #00ff00;
+  overflow: hidden; /* fill entire screen */
 }
 
-.console-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Provide a bit of outer padding if desired */
+.outer-container {
+  width: 100vw;
   height: 100vh;
+  padding: 2vh;
+  background: black;
 }
 
-/* -- Window with 3D Pixel Border & No Overcomplication -- */
-.console-window {
-  width: 560px;
-  height: 420px;
-  background: #111;
-  border: 4px solid #00ff00;
+/* Container holding the two windows side by side */
+.windows-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: black;
+}
+
+/* =========================================
+   2) Retro Window Base
+========================================= */
+.retro-window {
+  display: flex;
+  flex-direction: column;
+  background: #000; 
+  height: 100%;
+
+  /* Thin 2px outer border so it matches everything else: */
+  border: 2px solid #00ff00;
+
+  /* Keep the “inset” effect but can reduce thickness if you want:
+     e.g. `inset -1px -1px 0 #003300, inset 1px 1px 0 #000000` 
+     so it doesn't get too thick visually. */
+  box-shadow:
+    0 0 8px rgba(0,255,0,0.5),
+    inset -1px -1px 0 #003300,
+    inset 1px 1px 0 #000000;
+}
+
+/* Title Bar (same height for both windows) */
+.retro-title-bar {
+  display: flex;
+  align-items: center;
+  background: #00ff00;
+  color: black;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 6px 8px;
+
+  box-shadow:
+    inset -1px -1px 0 #003300,
+    inset 1px 1px 0 #99ff99;
+
+  height: 30px; /* pick a consistent bar height */
+  position: relative;
+}
+
+/* =========================================
+   3) Left Window (History)
+========================================= */
+.left-window {
+  width: 30%;
+}
+.left-title-bar {
+  justify-content: space-between;
+}
+
+/* The scrollable body of the left window */
+.left-window-body {
+  flex: 1;
+  overflow-y: auto;
+
+  /* Thin 2px top & bottom border inside the window: */
+  border-top: 2px solid #00ff00;
+  border-bottom: 0px solid #00ff00;
+  border-right:  0px solid #00ff00;
+
+  background: black;
   padding: 8px;
-  text-align: left;
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+/* Chat items, etc. */
+.chat-item {
+  padding: 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px dotted #00ff00;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.chat-item:hover {
+  background: rgba(0,255,0,0.1);
+}
+.chat-item.active {
+  background: rgba(0,255,0,0.2);
+}
+
+/* Hover trash icon => red */
+.chat-delete-btn {
+  background: transparent;
+  border: none;
+  color: #00ff00;
+  cursor: pointer;
+}
+.chat-delete-btn:hover svg {
+  fill: red !important;
+}
+
+/* Pencil for new chat */
+.new-chat-btn {
+  background: black;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.new-chat-btn:hover {
+  background: #33ff33;
+  color: black;
+}
+
+/* =========================================
+   4) Right Window (Console)
+========================================= */
+.right-window {
+  width: 70%;
   display: flex;
   flex-direction: column;
 }
 
-/* 🔹 Title Bar */
-.console-title-bar {
-  background: #00ff00;
-  color: black;
-  font-weight: bold;
-  padding: 5px;
-  text-align: center;
-  font-size: 16px;
+.right-title-bar {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
 }
 
-/* 🔹 Main Scrolling Body */
-.console-body {
-  flex: 1;              /* fill vertical space */
-  overflow-y: auto;
-  padding: 5px;
+/* Pillar dropdown wrapper (unchanged, just keep 2px effects if you want) */
+.pillar-dropdown-wrapper {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  background: #00ff00;
+  color: black;
+  margin-left: 8px;
+  padding: 2px 6px;
+  box-shadow:
+    inset -1px -1px 0 #003300,
+    inset 1px 1px 0 #99ff99;
+}
+.pillar-dropdown-display {
+  background: transparent;
+  color: black;
+  font-family: "Courier New", monospace;
+  padding: 2px 6px;
+  margin-right: 4px;
+  font-size: 14px;
+}
+.pillar-arrow {
+  font-weight: bold;
+  pointer-events: none;
+  color: black;
+}
+
+/* The dropdown menu (unchanged) */
+.pillar-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 2px;
+  background: black;
+  color: #00ff00;
   border: 2px solid #00ff00;
+  box-shadow:
+    0 0 6px rgba(0,255,0,0.4),
+    inset -1px -1px 0 #003300,
+    inset 1px 1px 0 #99ff99;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 120px;
+  z-index: 9999;
+}
+.pillar-menu li {
+  padding: 6px 8px;
+  border-bottom: 1px dotted #00ff00;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  cursor: pointer;
+}
+.pillar-menu li:last-child {
+  border-bottom: none;
+}
+.pillar-menu li:hover {
+  background: rgba(0,255,0,0.2);
+}
+.pillar-menu li.selected {
+  background: rgba(0,255,0,0.3);
+}
+
+/* Scrollable console area on the right */
+.right-console-body {
+  flex: 1;
+  overflow-y: auto;
+  border-top: 2px solid #00ff00;
   background: black;
   color: #00ff00;
   font-size: 14px;
   line-height: 1.5;
-  font-family: "Courier New", monospace;
-  white-space: pre-wrap;
+  padding: 8px;
 }
-
-.console-body.loading {
+.right-console-body.loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
-
-/* 🔹 Retro Scrollbar Styling (applies to both vertical & horizontal) */
-.console-body::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+/* lines in the console */
+.console-output {
+  display: flex;
+  flex-direction: column;
 }
-.console-body::-webkit-scrollbar-thumb {
-  background: #00ff00;
-  box-shadow: inset -2px -2px 0px #003300, inset 2px 2px 0px #99ff99;
-}
-.console-body::-webkit-scrollbar-track {
-  background: black;
-}
-.console-body::-webkit-scrollbar-corner {
-  background: black;
-}
-
-/* 🔹 Console Lines */
 .console-line {
-  padding: 2px;
+  margin: 4px 0;
+}
+.separator-line {
+  width: 80%;
+  margin: 12px auto;
+  height: 1px;
+  background: rgba(255,255,255,0.125);
 }
 
-/* 🔹 Console Input Area */
+/* Single input bar at bottom:
+   use 2px top border to match everything else. */
 .console-input {
   display: flex;
-  height: 45px;
-  margin-top: 5px;
-  border: 2px solid #00ff00;
-  padding: 5px;
-  background: black;
   align-items: center;
+  background: black;
+  border-top: 2px solid #00ff00;
+  padding: 8px;
+  margin: 0;
 }
-
-.console-input.loading-disabled {
-  visibility: hidden;     /* invisible, but layout space remains */
-  pointer-events: none;   /* user can’t click/submit */
-}
-
 .input-field {
-  flex-grow: 1;
+  flex: 1;
   background: black;
   color: #00ff00;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  padding: 5px;
+  border: 2px solid #00ff00; /* keep text field border at 2px if you like */
   font-family: "Courier New", monospace;
+  font-size: 14px;
+  padding: 4px;
+  margin-right: 8px;
 }
-
-/* 🔹 Retro Submit Button */
 .submit-btn {
   background: #00ff00;
   border: 2px solid black;
   color: black;
   font-size: 14px;
   font-weight: bold;
-  padding: 5px;
+  padding: 6px 12px;
   cursor: pointer;
   font-family: "Courier New", monospace;
 }
-
 .submit-btn:hover {
   background: #33ff33;
 }
 
-/* 🔹 ASCII Loader & Logo (from newer code) */
+/* =========================================
+   5) Loader / Scrollbars
+========================================= */
 .ascii-loader {
   text-align: center;
-  font-size: 14px;
   color: #00ff00;
-  font-family: "Courier New", monospace;
-  white-space: pre;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  margin-top: 10px;
 }
-
-/* If you have a separate .ascii-logo class for the big text lines: */
 .ascii-logo {
-  text-align: center;
-  font-size: 14px;
-  color: #00ff00;
-  font-family: "Courier New", monospace;
+  margin: 0;
   white-space: pre;
   line-height: 1;
-  margin: 0 auto;
-  display: block;
 }
-
-/* Progress Bar Container */
-.progress-container {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 10px;
-}
-
 .progress-bar {
-  font-size: 14px;
-  color: #00ff00;
   font-weight: bold;
-  text-align: center;
   margin-top: 5px;
 }
 
-/* Loading text messages below progress bar */
-.loading-text {
-  font-size: 12px;
-  color: #00ff00;
-  margin-top: 5px;
+/* Custom scrollbars (unchanged) */
+.left-window-body::-webkit-scrollbar,
+.right-console-body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.left-window-body::-webkit-scrollbar-track,
+.right-console-body::-webkit-scrollbar-track {
+  background: black;
+}
+.left-window-body::-webkit-scrollbar-thumb,
+.right-console-body::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  box-shadow: inset -2px -2px 0 #003300, inset 2px 2px 0 #000000;
 }
 
-/* Optional: if you had a larger, bold animation text: */
-.loading-animation {
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 10px;
-  color: #00ff00;
-}
-
-.loading-animation-container {
+/* =========================================
+   6) Delete Confirm Modal
+========================================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  z-index: 9999;
+}
+.modal-box {
+  background: #111;
+  border: 2px solid #00ff00;
+  padding: 20px;
+  min-width: 300px;
+  color: #00ff00;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,255,0,0.6);
+}
+.modal-box h3 {
+  margin-top: 0;
+}
+.modal-box input {
+  width: 80%;
+  padding: 6px;
+  margin: 8px 0;
+  border: 1px solid #00ff00;
+  background: black;
+  color: #00ff00;
+}
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 12px;
+}
+.modal-buttons button {
+  background: #00ff00;
+  color: black;
+  border: 2px solid black;
+  font-family: "Courier New", monospace;
+  cursor: pointer;
+  padding: 6px 12px;
+}
+.modal-buttons button[disabled] {
+  background: #444;
+  cursor: not-allowed;
+}
+.modal-buttons button:hover:not([disabled]) {
+  background: #33ff33;
 }

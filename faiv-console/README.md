@@ -1,151 +1,187 @@
-# FAIV Console Application - Full Setup Guide
+![FAIV Screenshot](faiv-ss2.png)
 
-## 📌 Overview
+# FAIV – Multi-Pillar Council Setup
 
-FAIV, a multi-perspective AI inspired by the five pillars of humanity. It uses OpenAI's GPT-4 to simulate diverse expert councils through a unique meta-prompting structure, compressing their insights into optimized, clear outputs. The React frontend features a sleek retro console design with animated ASCII art, while the FastAPI backend handles data processing efficiently—keeping token usage low and performance high.
-
-## 📂 Repository Structure
-
-```
-faiv_project/
-├── faiv_app/
-│   ├── core.py
-│   └── identity_codex.py
-├── faiv-console/
-│   ├── public/
-│   ├── src/
-│   ├── package.json
-│   └── build/ (after npm run build)
-└── passenger_wsgi.py
-```
-
-## 🖥️ Backend Setup (FastAPI & Flask)
-
-### Local Development
-
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Set Environment Variables:**
-   ```bash
-   export OPENAI_API_KEY="your_openai_api_key_here"
-   ```
-
-3. **Start FastAPI Locally:**
-   ```bash
-   uvicorn faiv_app.core:fastapi_app --host 127.0.0.1 --port 8000 --reload
-   ```
-
-## 🚀 Production Deployment
-
-This project is production-ready and optimized for environments like Passenger:
-
-- **WSGI Integration:**
-  - Wrapped FastAPI within Flask's WSGIMiddleware for seamless Passenger deployment.
-  - File: `faiv_app/core.py`
-
-4. **WSGI Entry Point:**
-   - Create `passenger_wsgi.py` at your app root:
-     ```python
-     from faiv_app.core import application
-     ```
-
-5. **Passenger Configuration:**
-   - Ensure your server environment variable `OPENAI_API_KEY` is set.
-   - Restart the Passenger server:
-     ```bash
-     passenger-config restart-app /path/to/your/app
-     ```
-
-## 🚀 Frontend React Console Setup
-
-1. **Navigate to Frontend Directory:**
-   ```bash
-   cd faiv-console
-   ```
-
-2. **Install Dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Run React App Locally:**
-   ```bash
-   npm start
-   ```
-
-4. **Production Build:**
-   ```bash
-   npm run build
-   ```
-   - Deploy the generated `build/` folder for production.
-
-## ⚙️ Backend API Integration
-
-- Endpoint:
-  ```http
-  POST http://127.0.0.1:8000/query/
-  ```
-- **Request Body Example:**
-  ```json
-  {"input_text": "Your question here."}
-  ```
-
-- **Response Format:**
-  ```json
-  {
-    "status": "✅ FAIV Processing Complete",
-    "response": "**FAIV Consensus:** Recommendation\n**Confidence Score:** 95%\n**Justification:** Brief reasoning."
-  ```
-
-## 🌐 Production Deployment
-
-- **Flask WSGI Wrapper:**
-  - Automatically loads in environments like Passenger without additional configuration.
-
-- **Passenger Restart:**
-  ```bash
-  passenger-config restart-app /path/to/your/app
-  ```
-
-## 🎯 Identity Codex Integration
-
-- **Source:** `faiv_app/identity_codex.py`
-- **Purpose:** Encapsulates multiple expert council perspectives.
-- **Function:** Automatically summarized by `create_identity_summary()` in the backend.
-- **Impact:** Compresses detailed council perspectives into concise AI prompts, optimizing token efficiency.
-
-## 💡 Innovations & Token Efficiency
-
-- **Singular API Call:**
-  - Compresses multi-council deliberations into one highly structured prompt.
-  - Significantly reduces OpenAI API token consumption.
-
-- **Unicode Encoding & Decoding:**
-  - Backend encodes multi-perspective insights using Unicode transformations (bold, italic, upside-down, tiny).
-  - Frontend decodes to clear, readable outputs.
-
-## 🛠 Local Development Tips
-
-- **Port Conflicts:**
-  - To resolve backend port issues:
-    ```bash
-    uvicorn faiv_app.core:fastapi_app --host 127.0.0.1 --port 8001 --reload
-  ```
-
-- **Ensure React-Backend Connectivity:**
-  - Verify FastAPI backend is running.
-
-## 📌 Production Deployment Checklist
-
-- ✅ Ensure `OPENAI_API_KEY` is securely configured.
-- ✅ React frontend (`npm run build`) static assets deployed.
-- ✅ Flask WSGI wrapper active via Passenger.
-- ✅ Run automated tests to verify proper deployment and backend connectivity.
+This project demonstrates a multi-perspective AI “council” using OpenAI’s GPT-4 for responses. It combines a React retro-styled console front end with a FastAPI backend, wrapped in a Flask WSGI container for hosting flexibility when deployed in production.
 
 ---
 
-🎉 **You're ready to deploy and enjoy your optimized, retro-styled, FAIV-powered decision engine!**
+## 1. Overview
+
+### Backend
+- Located in `faiv_app/core.py`, featuring a FastAPI application.
+- In production (e.g., with Passenger), we expose a Flask wrapper (WSGIMiddleware) as "application".
+- Uses Redis for session-based memory and GPT-4 for AI responses.
+
+### Frontend
+- A React application in `faiv-console/`, styled as a classic console interface.
+- Dynamically queries the backend at `http://127.0.0.1:8000/query/`.
+
+### Environment
+- Requires `OPENAI_API_KEY` in the environment.
+- Optionally configure Redis host/port in `core.py` if needed.
+
+---
+
+## 2. Folder Structure
+
+```
+FAIV/
+├── README.md                  (This file)
+├── requirements.txt           (Python dependencies)
+├── faiv_app/                  (Backend code)
+│   ├── core.py                (FastAPI + Flask wrapper)
+│   ├── identity_codex.py      (Identity Codex data)
+│   └── ...
+└── faiv-console/              (Frontend React code)
+    ├── package.json
+    ├── src/
+    ├── public/
+    └── build/                 (Generated by "npm run build")
+```
+
+---
+
+## 3. Backend Setup
+
+### Local Development
+
+1. **Create & Activate Virtual Env**
+   ```sh
+   cd FAIV
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+2. **Install Dependencies**
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+3. **Set Your API Key**
+   ```sh
+   export OPENAI_API_KEY="sk-YourOpenAIKey"
+   ```
+
+4. **Launch the FastAPI Server**
+   ```sh
+   uvicorn faiv_app.core:fastapi_app --host 127.0.0.1 --port 8000 --reload
+   ```
+   (Runs at `http://127.0.0.1:8000`)
+
+### Production Deployment with Passenger
+
+- Passenger can load the WSGI app from `faiv_app/core.py`:
+  ```python
+  from faiv_app.core import application
+  ```
+- Ensure `OPENAI_API_KEY` is set in the production environment.
+- The Flask wrapper is already configured in `core.py`, no extra config needed.
+
+---
+
+## 4. Frontend Setup
+
+### Development Mode
+
+1. **Install Node Dependencies**
+   ```sh
+   cd faiv-console
+   npm install
+   ```
+
+2. **Run the React Dev Server**
+   ```sh
+   npm start
+   ```
+   (Runs at `http://localhost:3000`, calls backend at `http://127.0.0.1:8000/query/`)
+
+### Production Build
+
+1. **Build the React App**
+   ```sh
+   cd faiv-console
+   npm run build
+   ```
+
+2. **Deploy the `build/` Folder**
+   These are your static files for production hosting.
+
+---
+
+## 5. Identity Codex & Dynamic Pillars
+
+- `identity_codex.py` defines multiple “council members” grouped by pillars (Wisdom, Strategy, Expansion, Future, Integrity, plus default FAIV).
+- The user can select which pillar to query from the React front end.
+- `core.py` automatically includes only the relevant codex members in the AI’s prompt.
+
+---
+
+## 6. Example Screenshots
+
+(Reference: place `faiv-ss.png` and `faiv-ss2.png` in the same directory for these examples.)
+
+- Original Screenshot (`faiv-ss.png`)
+- Updated Multi-Pillar Screenshot (`faiv-ss2.png`)
+
+With multi-pillar, you’ll see lines like:
+“Wisdom Council’s Consensus:” or “Future Council’s Consensus:” etc.
+
+---
+
+## 7. Troubleshooting
+
+- **Missing `OPENAI_API_KEY`:**
+  Make sure to set `export OPENAI_API_KEY="sk-YourKey"`
+
+- **Redis Connection Issues:**
+  Adjust host/port in `redis_client = redis.Redis(...)` in `core.py` if needed.
+
+- **React Dev Server Not Finding API:**
+  Confirm `uvicorn` is running on 8000. If needed, modify fetch calls in your React code.
+
+- **Passenger Doesn’t Recognize WSGI:**
+  Check `passenger_wsgi.py` contains:
+  ```python
+  from faiv_app.core import application
+  ```
+  Then restart Passenger.
+
+---
+
+## 8. Additional Notes
+
+### Local Testing
+
+### Production
+Deploy via Passenger or any WSGI-compatible server. The “application” is the Flask-wrapped app in `core.py`.
+
+### Frontend Updates
+If you change the React code, run `npm run build` again to regenerate `build/`.
+
+---
+
+## 9. Git Workflow
+
+If you want to push a new branch with your updated React build:
+
+1. **Build Updated React**
+   ```sh
+   cd faiv-console
+   npm run build
+   ```
+
+2. **Commit & Push**
+   ```sh
+   git checkout -b feature/pillar-dynamic
+   git add .
+   git commit -m "Add multi-pillar logic & updated console UI"
+   git push -u origin feature/pillar-dynamic
+   ```
+
+---
+
+**Enjoy the new multi-pillar FAIV council!**
+
+---
 

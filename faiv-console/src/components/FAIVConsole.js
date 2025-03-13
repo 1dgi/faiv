@@ -1,236 +1,532 @@
 import React, { useState, useEffect } from "react";
 import "./FAIVConsole.css";
-import LoadingAnimation from "./LoadingAnimation";
 
-const FAIVConsole = () => {
-  // ------------------------------
-  // 0) ASCII Lines for the Logo + Wavy Effect
-  // ------------------------------
-  const asciiLines = [
+/****************************************
+ * 1) ASCII Loader Frames
+ ****************************************/
+const asciiFrames = [
+  [
     "███████╗ █████╗ ██╗██╗   ██╗",
     "██╔════╝██╔══██╗██║██║   ██║",
     "█████╗  ███████║██║██║   ██║",
     "██╔══╝  ██╔══██║██║╚██╗ ██╔╝",
+    "██║     ██║  ██║██║ ╚████╔╝ ",
+    "╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝  ",
+  ],
+  [
+    " ██████╗ █████╗ ██╗██╗   ██╗",
+    "██╔════╝██╔══██╗██║██║   ██║",
+    "█████╗  ███████║██║██║   ██║",
+    "██╔══╝  ██╔══██║██║╚██╗ ██╔╝",
     "██║     ██║  ██║██║ ╚████╔╝",
-    "╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝"
-  ];
+    "╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝ ",
+  ],
+  [
+    "  ██████╗ █████╗ ██╗██╗   ██╗",
+    " ██╔════╝██╔══██╗██║██║   ██║",
+    " █████╗  ███████║██║██║   ██║",
+    " ██╔══╝  ██╔══██║██║╚██╗ ██╔╝",
+    " ██║     ██║  ██║██║ ╚████╔╝ ",
+    " ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝  ",
+  ],
+];
 
-  // Wave offset toggles between 0 and 1
-  const [waveOffset, setWaveOffset] = useState(0);
+/****************************************
+ * 2) Helper to parse final FAIV output
+ ****************************************/
+function extractFinalOutput(response) {
+  if (!response || typeof response !== "string") {
+    return "⚠ No valid response received.";
+  }
+
+  // 1) Clean up zero-width etc.
+  const cleaned = response
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\s*\n\s*/g, "\n")
+    .trim();
+
+  // 2) Split by newlines
+  const lines = cleaned.split("\n");
+
+  // 3) Minor helper to remove stray bracket/asterisk combos
+  const cleanStr = (str) => str.replace(/\]*:?[*]+/g, "").trim();
+
+  // 4) Return a <div> of parsed lines
+  return (
+    <div className="output-block">
+      {lines.map((rawLine, idx) => {
+        const line = rawLine.trim();
+
+        // CASE A)  If line ends with "Consensus:" … e.g.
+        //    "FAIV Consensus: ..." or
+        //    "Wisdom Council's Consensus: ..."
+        //    "Expansion Council's Consensus: ..."
+        // We'll handle them all by looking for "...Consensus:"
+        if (/Consensus:/i.test(line)) {
+          // We can split at the first occurrence of "Consensus:"
+          // to separate the label from the rest:
+          const [labelPart, afterLabel] = line.split(/Consensus:\s*/i);
+          // e.g. labelPart = "FAIV" or "Wisdom Council's" ...
+          // afterLabel = "some text"
+
+          const labelClean = cleanStr(labelPart + "Consensus:"); 
+          // e.g. "FAIV Consensus:" or "Wisdom Council's Consensus:"
+          const content = cleanStr(afterLabel || "");
+
+          return (
+            <div key={idx} className="console-line">
+              <b>
+                <u>{labelClean}</u>
+              </b>
+              {": "}
+              {content}
+            </div>
+          );
+        }
+
+        // CASE B) Confidence Score
+        if (line.startsWith("Confidence Score:")) {
+          const val = cleanStr(line.replace(/^Confidence Score:/i, ""));
+          return (
+            <div key={idx} className="console-line">
+              <b>
+                <u>Confidence Score:</u>
+              </b>{" "}
+              {val}
+            </div>
+          );
+        }
+
+        // CASE C) Justification
+        if (line.startsWith("Justification:")) {
+          const val = cleanStr(line.replace(/^Justification:/i, ""));
+          return (
+            <div key={idx} className="console-line">
+              <b>
+                <u>Justification:</u>
+              </b>{" "}
+              {val}
+            </div>
+          );
+        }
+
+        // CASE D) Differing Opinion
+        if (line.startsWith("Differing Opinion -")) {
+          const val = cleanStr(line.replace(/^Differing Opinion -/i, ""));
+          return (
+            <div key={idx} className="console-line">
+              <b>
+                <u>Differing Opinion -</u>
+              </b>{" "}
+              {val}
+            </div>
+          );
+        }
+
+        // CASE E) Reason
+        if (line.startsWith("Reason:")) {
+          const val = cleanStr(line.replace(/^Reason:/i, ""));
+          return (
+            <div key={idx} className="console-line">
+              <b>
+                <u>Reason:</u>
+              </b>{" "}
+              {val}
+            </div>
+          );
+        }
+
+        // fallback
+        return (
+          <div key={idx} className="console-line">
+            {cleanStr(line)}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/****************************************
+ * 3) Main Component
+ ****************************************/
+export default function FAIVConsole() {
+  // allSessions => { [sessionId]: { title, messages[] } }
+  const [allSessions, setAllSessions] = useState({});
+  const [activeSessionId, setActiveSessionId] = useState("");
+
+  // input + loading
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // ASCII wave
+  const [asciiFrame, setAsciiFrame] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  // Pillar dropdown
+  const [selectedPillar, setSelectedPillar] = useState("FAIV");
+  const [pillarOpen, setPillarOpen] = useState(false);
+
+  // Delete confirm
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [pendingDeleteSession, setPendingDeleteSession] = useState("");
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
+
+  /****************************************
+   * 4) Load from localStorage on mount
+   ****************************************/
   useEffect(() => {
-    const interval = setInterval(() => {
-      setWaveOffset((prev) => (prev + 1) % 2);
-    }, 300);
-    return () => clearInterval(interval);
+    const stored = localStorage.getItem("faiv_sessions");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setAllSessions(parsed);
+
+      const lastActive = localStorage.getItem("faiv_session_id") || "";
+      if (lastActive && parsed[lastActive]) {
+        setActiveSessionId(lastActive);
+      } else {
+        // if lastActive isn't valid, or doesn't exist, see if there's any session
+        const keys = Object.keys(parsed);
+        if (keys.length > 0) {
+          setActiveSessionId(keys[0]);
+          localStorage.setItem("faiv_session_id", keys[0]);
+        } else {
+          // No sessions at all => create one
+          handleNewChat();
+        }
+      }
+    } else {
+      // No stored sessions => create one
+      handleNewChat();
+    }
   }, []);
 
-  // Returns ASCII lines with alternating leading space for wave effect
-  function getWavyAsciiLines() {
-    return asciiLines.map((line, idx) => {
-      const needsSpace = ((idx + waveOffset) % 2) === 1;
-      return (needsSpace ? " " : "") + line;
+  // Watch changes to allSessions => persist to localStorage
+  useEffect(() => {
+    localStorage.setItem("faiv_sessions", JSON.stringify(allSessions));
+  }, [allSessions]);
+
+  // Animate progress
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      setProgress(0);
+      const startTime = Date.now();
+      interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const newVal = Math.min((elapsed / 8000) * 100, 99);
+        setProgress(newVal);
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
+
+  // Animate ascii
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      interval = setInterval(() => {
+        setAsciiFrame((prev) => (prev + 1) % asciiFrames.length);
+      }, 400);
+    } else {
+      setAsciiFrame(0);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
+
+  // get messages for current session
+  const currentSession = allSessions[activeSessionId];
+  const currentMessages = currentSession ? currentSession.messages : [];
+
+  function updateSessionMessages(sessionId, newMessages) {
+    setAllSessions(prev => ({
+      ...prev,
+      [sessionId]: {
+        ...prev[sessionId],
+        messages: newMessages
+      }
+    }));
+  }
+
+  // New Chat
+  function handleNewChat() {
+    const newId = crypto.randomUUID();
+    const newTitle = "Untitled";
+    const newSession = { title: newTitle, messages: [] };
+    setAllSessions(prev => ({ ...prev, [newId]: newSession }));
+    setActiveSessionId(newId);
+    localStorage.setItem("faiv_session_id", newId);
+  }
+
+  // If no sessions remain, create one
+  function ensureAtLeastOneSession() {
+    const keys = Object.keys(allSessions);
+    if (keys.length === 0) {
+      handleNewChat();
+    }
+  }
+
+  // Delete Chat
+  function handleDeleteChat(sessionId) {
+    setPendingDeleteSession(sessionId);
+    setDeleteConfirmInput("");
+    setShowDeleteModal(true);
+  }
+
+  function confirmDelete() {
+    if (deleteConfirmInput.toLowerCase().trim() !== "delete") {
+      return;
+    }
+    setShowDeleteModal(false);
+
+    const sessId = pendingDeleteSession;
+    setAllSessions(prev => {
+      const copy = { ...prev };
+      delete copy[sessId];
+      return copy;
     });
-  }
 
-  // ------------------------------
-  // 1) Loading & Progress States
-  // ------------------------------
-  const [input, setInput] = useState("");
-  const [output, setOutput] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [statusMessage, setStatusMessage] = useState("FAIV Processing Started...");
-
-  const progressPhases = [
-    { percent: 5, message: "Initializing FAIV Deliberation..." },
-    { percent: 20, message: "Councils Gathering Insights..." },
-    { percent: 45, message: "Encoding Perspectives..." },
-    { percent: 70, message: "Finalizing Consensus..." },
-    { percent: 100, message: "Decision Ready!" }
-  ];
-
-  // ------------------------------
-  // 2) Text Normalization Functions
-  // ------------------------------
-
-  // Remove emojis from text
-  const removeEmojis = (text) => {
-    const emojiPattern = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}\u{24C2}-\u{1F251}]/gu;
-    return text.replace(emojiPattern, "");
-  };
-
-  // Upside-down mappings
-  const upsideDownOriginal =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,;()[]{}";
-  const upsideDownFlipped =
-    "ɐqɔpǝɟƃɥᴉɾʞʅɯuodbɹsʇnʌʍxʎz∀ᗺƆᗡƎℲפHIſʞ˥WNOԀQᴚS┴∩ΛMX⅄Z0ƖᄅƐㄣϛ9ㄥ86¿¡˙‘؛)(][}{";
-
-  const reverseUpsideDownMap = {};
-  for (let i = 0; i < upsideDownFlipped.length; i++) {
-    reverseUpsideDownMap[upsideDownFlipped[i]] = upsideDownOriginal[i];
-  }
-  // Placeholder mapping for any missing glyphs, if needed
-  const placeholderMap = {
-    "⟦1⟧": "B"
-  };
-
-  function normalizeUpsideDown(text) {
-    return text
-      .split("")
-      .map((char) => placeholderMap[char] || reverseUpsideDownMap[char] || char)
-      .join("");
-  }
-
-  // Fancy font to plain mapping
-  const fontTransformations = {
-    "𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘶𝘷𝘄𝘹𝘺𝘇": "abcdefghijklmnopqrstuvwxyz",
-    "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗶𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻": "abcdefghijklmnopqrstuvwxyz",
-    "𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    "ᵃᵇᶜᵈᵉᶠᵍʰᶤʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ": "abcdefghijklmnopqrstuvwxyz",
-    "ᴬᴮᶜᴰᴱᶠᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾᵟᴿˢᵀᵁⱽᵂˣʸᶻ": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  };
-
-  // Master normalization: remove emojis, then convert fancy fonts, then normalize upside-down
-  const normalizeText = (text) => {
-    text = removeEmojis(text);
-    for (const [fancy, plain] of Object.entries(fontTransformations)) {
-      for (let i = 0; i < fancy.length; i++) {
-        text = text.replaceAll(fancy[i], plain[i]);
+    if (sessId === activeSessionId) {
+      const remain = Object.keys(allSessions).filter(id => id !== sessId);
+      if (remain.length > 0) {
+        setActiveSessionId(remain[0]);
+        localStorage.setItem("faiv_session_id", remain[0]);
+      } else {
+        handleNewChat();
       }
     }
-    text = normalizeUpsideDown(text);
-    return text;
-  };
-
-  // ------------------------------
-  // 3) Fixed Progress Bar Component
-  // ------------------------------
-  function FixedProgressBar({ progress }) {
-    const totalSquares = 10;
-    const filledCount = Math.round(progress / 10);
-    const filled = "█".repeat(filledCount);
-    const empty = "▒".repeat(totalSquares - filledCount);
-    const paddedProgress = String(progress).padStart(3, " ");
-    return (
-      <div className="progress-bar">
-        [{filled}{empty}] {paddedProgress}%
-      </div>
-    );
   }
 
-  // ------------------------------
-  // 4) Minimal Final Output Extraction Function
-  // ------------------------------
-  // This function extracts final consensus, confidence, and justification
-  // from the raw response text (which is expected to be minimal from a single API call).
-  function extractFinalOutput(rawText) {
-    const consensusMatch = rawText.match(/\*\*FAIV Consensus:\*\*\s*(.+)/);
-    const confidenceMatch = rawText.match(/\*\*Confidence Score:\*\*\s*(\d+)%/);
-    const justificationMatch = rawText.match(/\*\*Justification:\*\*\s*(.+)/);
-    let out = "";
-    if (consensusMatch) out += `**FAIV Consensus:** ${consensusMatch[1].trim()}\n`;
-    if (confidenceMatch) out += `**Confidence Score:** ${confidenceMatch[1].trim()}%\n`;
-    if (justificationMatch) out += `**Justification:** ${justificationMatch[1].trim()}\n`;
-    return out.trim();
+  // Select Chat
+  function handleSelectSession(sessionId) {
+    setActiveSessionId(sessionId);
+    localStorage.setItem("faiv_session_id", sessionId);
   }
 
-  // ------------------------------
-  // 5) Submit Handler
-  // ------------------------------
-  const handleSubmit = async (e) => {
+  // Submit
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!input.trim()) return;
-    setOutput((prev) => [...prev, `> ${input}`]);
+
+    ensureAtLeastOneSession();
+    if (!input.trim() || !activeSessionId) return;
+
+    // Make sure the session actually exists
+    if (!allSessions[activeSessionId]) {
+      handleNewChat();
+      return;
+    }
+
+    const title = allSessions[activeSessionId].title;
+    let updated = [...allSessions[activeSessionId].messages];
+
+    // Add a separator if there's already content
+    if (updated.length > 0) updated.push("-----");
+    updated.push(`> ${input}`);
+
+    // If the session is "Untitled," rename from snippet
+    if (title === "Untitled") {
+      let snippet = input.length > 30 ? input.slice(0, 30).trim() + "..." : input;
+      snippet = `"${snippet}"`;
+      setAllSessions(prev => ({
+        ...prev,
+        [activeSessionId]: {
+          ...prev[activeSessionId],
+          title: snippet
+        }
+      }));
+    }
+
+    // store updated content
+    updateSessionMessages(activeSessionId, updated);
+    setInput("");
     setLoading(true);
-    setProgress(0);
-    setStatusMessage("FAIV Processing Started...");
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/query/", {
+      const resp = await fetch("http://127.0.0.1:8000/query/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input_text: input })
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          session_id: activeSessionId,
+          input_text: input,
+          pillar: selectedPillar
+        }),
       });
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      if (!resp.ok) {
+        throw new Error(`HTTP error! status: ${resp.status}`);
+      }
+      const data = await resp.json();
 
-      const data = await response.json();
-
-      // Simulate progress phases
-      let index = 0;
-      const processPhase = () => {
-        if (index < progressPhases.length) {
-          setProgress(progressPhases[index].percent);
-          setStatusMessage(progressPhases[index].message);
-          setTimeout(processPhase, 1000);
-          index++;
-        } else {
-          // Once loading is done, assume data.response is minimal final output.
-          // Extract the final output with our function.
-          const finalOutput = extractFinalOutput(data.response);
-          setOutput((prev) => [...prev, finalOutput]);
-          setLoading(false);
-        }
-      };
-      processPhase();
-    } catch (error) {
-      setOutput((prev) => [...prev, `⚠ Error: ${error.message}`]);
-      setLoading(false);
+      updated.push(data.response);
+      updateSessionMessages(activeSessionId, updated);
+    } catch (err) {
+      updated.push(`⚠ Error contacting FAIV API: ${err.message}`);
+      updateSessionMessages(activeSessionId, updated);
     } finally {
-      setInput("");
+      setLoading(false);
     }
-  };
 
-  // ------------------------------
-  // 6) Render
-  // ------------------------------
+    // scroll
+    setTimeout(() => {
+      const consoleBody = document.querySelector(".right-console-body");
+      if (consoleBody) consoleBody.scrollTop = consoleBody.scrollHeight;
+    }, 100);
+  }
+
   return (
-    <div className="console-wrapper">
-      <div className="console-window">
-        {/* Title Bar */}
-        <div className="console-title-bar">
-          <span className="console-title">FAIV Console</span>
-        </div>
-        {/* Main Console Body */}
-        <div className={`console-body ${loading ? "loading" : ""}`}>
-          {loading ? (
-            <div className="ascii-loader">
-              {getWavyAsciiLines().map((row, i) => (
-                <pre key={i} className="ascii-logo">{row}</pre>
-              ))}
-              <div className="progress-container">
-                <div className="loading-animation-container">
-                  <LoadingAnimation />
-                  <FixedProgressBar progress={progress} />
+    <div className="outer-container">
+      <div className="windows-container">
+        {/* LEFT WINDOW (History) */}
+        <div className="retro-window left-window">
+          <div className="retro-title-bar left-title-bar">
+            <span>History</span>
+            <button
+              className="new-chat-btn"
+              onClick={handleNewChat}
+              title="Start New Chat"
+            >
+              ✎
+            </button>
+          </div>
+
+          <div className="left-window-body">
+            {Object.keys(allSessions).map(sessId => {
+              const info = allSessions[sessId];
+              return (
+                <div
+                  key={sessId}
+                  className={`chat-item ${sessId === activeSessionId ? "active" : ""}`}
+                  onClick={() => handleSelectSession(sessId)}
+                >
+                  <span>{info.title || "Untitled"}</span>
+                  <button
+                    className="chat-delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteChat(sessId);
+                    }}
+                    title="Delete Chat"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#00ff00">
+                      <path d="M3 6h18M8 6v14c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V6" stroke="none" />
+                      <path d="M10 9v8M14 9v8" stroke="black" strokeWidth="2" />
+                    </svg>
+                  </button>
                 </div>
-                <div className="loading-text">{statusMessage}</div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* RIGHT WINDOW (Console) */}
+        <div className="retro-window right-window">
+          <div className="retro-title-bar right-title-bar">
+            <div
+              className="pillar-dropdown-wrapper"
+              onClick={() => setPillarOpen(!pillarOpen)}
+            >
+              <div className="pillar-dropdown-display">{selectedPillar}</div>
+              <div className="pillar-arrow">
+                {pillarOpen ? "▲" : "▼"}
               </div>
             </div>
-          ) : (
-            <div className="console-output">
-              {output.map((line, index) => (
-                <div key={index} className="console-line">{line}</div>
-              ))}
-            </div>
-          )}
-        </div>
-        {/* Input Bar: hidden while loading to maintain fixed window size */}
-        {!loading && (
-          <form onSubmit={handleSubmit} className="console-input">
+            {pillarOpen && (
+              <ul className="pillar-menu">
+                {["FAIV","Wisdom","Strategy","Expansion","Future","Integrity"]
+                  .map(opt => (
+                    <li
+                      key={opt}
+                      className={opt === selectedPillar ? "selected" : ""}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPillar(opt);
+                        setPillarOpen(false);
+                      }}
+                    >
+                      {opt}
+                    </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className={`right-console-body ${loading ? "loading" : ""}`}>
+            {loading ? (
+              <div className="ascii-loader">
+                {asciiFrames[asciiFrame].map((line, i) => (
+                  <pre key={i} className="ascii-logo">{line}</pre>
+                ))}
+                <div className="progress-bar">
+                  {"["}
+                  {"█".repeat(Math.round(progress / 10))}
+                  {"▒".repeat(10 - Math.round(progress / 10))}
+                  {"]"}
+                </div>
+              </div>
+            ) : (
+              <div className="console-output">
+                {currentMessages.map((msg, idx) => {
+                  if (msg === "-----") {
+                    return <div key={idx} className="separator-line" />;
+                  }
+                  if (
+                    msg.includes("FAIV Consensus:") || 
+                    msg.includes("Confidence Score:")
+                  ) {
+                    return (
+                      <div key={idx} className="console-line">
+                        {extractFinalOutput(msg)}
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={idx} className="console-line">
+                      {msg}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <form className="console-input" onSubmit={handleSubmit}>
             <input
-              type="text"
               className="input-field"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Enter your query..."
-              autoFocus
+              placeholder="FAIV awaits your query..."
             />
             <button type="submit" className="submit-btn">Enter</button>
           </form>
-        )}
+        </div>
       </div>
+
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <div className="modal-backdrop">
+          <div className="modal-box">
+            <h3>Confirm Deletion</h3>
+            <p>This will permanently delete the selected chat.</p>
+            <p>Type <b>"delete"</b> to confirm:</p>
+            <input
+              type="text"
+              value={deleteConfirmInput}
+              onChange={(e) => setDeleteConfirmInput(e.target.value)}
+            />
+            <div className="modal-buttons">
+              <button
+                onClick={confirmDelete}
+                disabled={deleteConfirmInput.toLowerCase().trim() !== "delete"}
+              >
+                Delete
+              </button>
+              <button onClick={() => setShowDeleteModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default FAIVConsole;
+}
