@@ -99,6 +99,9 @@ body {
 
 /* Chat items, etc. */
 .chat-item {
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.5;
   padding: 4px;
   margin-bottom: 4px;
   border-bottom: 1px dotted #00ff00;
@@ -125,19 +128,6 @@ body {
   fill: red !important;
 }
 
-/* Pencil for new chat */
-.new-chat-btn {
-  background: black;
-  color: #00ff00;
-  border: 1px solid #00ff00;
-  padding: 4px 8px;
-  cursor: pointer;
-}
-.new-chat-btn:hover {
-  background: #33ff33;
-  color: black;
-}
-
 /* =========================================
    4) Right Window (Console)
 ========================================= */
@@ -151,34 +141,6 @@ body {
   display: flex;
   align-items: center;
   font-size: 14px;
-}
-
-/* Pillar dropdown wrapper (unchanged, just keep 2px effects if you want) */
-.pillar-dropdown-wrapper {
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-  position: relative;
-  background: #00ff00;
-  color: black;
-  margin-left: 8px;
-  padding: 2px 6px;
-  box-shadow:
-    inset -1px -1px 0 #003300,
-    inset 1px 1px 0 #99ff99;
-}
-.pillar-dropdown-display {
-  background: transparent;
-  color: black;
-  font-family: "Courier New", monospace;
-  padding: 2px 6px;
-  margin-right: 4px;
-  font-size: 14px;
-}
-.pillar-arrow {
-  font-weight: bold;
-  pointer-events: none;
-  color: black;
 }
 
 /* The dropdown menu (unchanged) */
@@ -269,19 +231,6 @@ body {
   padding: 4px;
   margin-right: 8px;
 }
-.submit-btn {
-  background: #00ff00;
-  border: 2px solid black;
-  color: black;
-  font-size: 14px;
-  font-weight: bold;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-family: "Courier New", monospace;
-}
-.submit-btn:hover {
-  background: #33ff33;
-}
 
 /* =========================================
    5) Loader / Scrollbars
@@ -346,30 +295,244 @@ body {
   margin-top: 0;
 }
 .modal-box input {
-  width: 80%;
-  padding: 6px;
-  margin: 8px 0;
-  border: 1px solid #00ff00;
+  width: 80%; /* keep or tweak if you want more/less width */
   background: black;
   color: #00ff00;
-}
-.modal-buttons {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 12px;
-}
-.modal-buttons button {
-  background: #00ff00;
-  color: black;
-  border: 2px solid black;
+  border: 2px solid #00ff00;
   font-family: "Courier New", monospace;
+  font-size: 14px;
+  padding: 4px;
+
+  /* If you like a small margin on top/bottom: */
+  margin: 8px 0;
+
+  /* If you want to remove the focus ring: */
+  outline: none;
+}
+/* =========================================
+   Unified Retro-Button Style
+   For: .pillar-dropdown-wrapper, .new-chat-btn, .submit-btn
+========================================= */
+
+.pillar-dropdown-wrapper,
+.account-dropdown-wrapper,
+.new-chat-btn,
+.submit-btn {
+  background-color: #00ff00;
+  color: #000;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1;
   cursor: pointer;
-  padding: 6px 12px;
+
+  /* Tweak as needed for uniform height/width. */
+  padding: 4px 8px;  
+
+  /* The old-school highlight + shadow (inset). */
+  box-shadow:
+    inset -1px -1px 0 #003300, /* top/left darker line */
+    inset 1px 1px 0 #99ff99;   /* bottom/right lighter line */
+  
+  /* Animate position & shadow changes */
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+
+  /* Keep text or icon centered */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Remove explicit borders if you want purely the box-shadow look */
+  border: none;
 }
-.modal-buttons button[disabled] {
-  background: #444;
+
+/* Hover => slightly move up/left. */
+.pillar-dropdown-wrapper:hover,
+.account-dropdown-wrapper:hover,
+.new-chat-btn:hover,
+.submit-btn:hover {
+  transform: translate(-1px, -1px);
+}
+
+/* Clicked => pressed inwards. */
+.pillar-dropdown-wrapper:active,
+.account-dropdown-wrapper:active,
+.new-chat-btn:active,
+.submit-btn:active {
+  transform: translate(0px, 0px);
+  box-shadow:
+    inset -1px -1px 0 #99ff99,
+    inset 1px 1px 0 #003300;
+}
+
+/* You can still keep position: relative if needed for the dropdown to anchor its menu */
+.pillar-dropdown-wrapper {
+  position: relative; /* for .pillar-menu absolutely positioned below */
+  margin-left: 0px;   /* keep a small gap from any adjacent text or edges */
+}
+
+/* If you want the new chat button offset from the left title text */
+.new-chat-btn {
+  margin-left: 8px;
+}
+
+/* If your previous submit button had an explicit width or margin, keep them here. */
+.submit-btn {
+  font-weight: bold;
+}
+
+/* =========================================
+   7) Adjust Pillar Arrow Spacing
+========================================= */
+.pillar-arrow {
+  font-weight: bold;
+  pointer-events: none;
+  color: black;
+  margin-left: 4px; /* Add space before the triangle */
+}
+
+/* =========================================
+   8) Extend Retro Button Style to Modal Buttons
+========================================= */
+
+/* 8a) Add .modal-buttons button to the same unified style list. */
+.pillar-dropdown-wrapper,
+.new-chat-btn,
+.submit-btn,
+.modal-buttons button {
+  background-color: #00ff00;
+  color: #000;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: bold; /* all retro buttons now bold */
+  cursor: pointer;
+  padding: 4px 8px;
+  box-shadow:
+    inset -1px -1px 0 #003300,
+    inset 1px 1px 0 #99ff99;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+/* 8b) Hover => nudge up/left. */
+.pillar-dropdown-wrapper:hover,
+.new-chat-btn:hover,
+.submit-btn:hover,
+.modal-buttons button:hover {
+  transform: translate(-1px, -1px);
+}
+
+/* 8c) Active => pressed inwards. */
+.pillar-dropdown-wrapper:active,
+.new-chat-btn:active,
+.submit-btn:active,
+.modal-buttons button:active {
+  transform: translate(0, 0);
+  box-shadow:
+    inset -1px -1px 0 #99ff99,
+    inset 1px 1px 0 #003300;
+}
+
+/* 8d) If you want a disabled state to remain gray + unclickable: */
+.modal-buttons button:disabled {
+  background-color: #444;
+  color: #999;
   cursor: not-allowed;
+  /* Flatten the box-shadow so it doesn’t “raise” */
+  box-shadow: inset 0 0 0 #000;
+  transform: none;
 }
-.modal-buttons button:hover:not([disabled]) {
-  background: #33ff33;
+
+/* 9) Space the modal buttons properly. 
+   Center them horizontally with a gap. */
+   .modal-buttons {
+    display: flex;
+    justify-content: center; /* center horizontally */
+    gap: 16px;              /* space between buttons */
+    margin-top: 12px;       /* some top margin */
+  }
+  
+  .account-dropdown-wrapper {
+    position: relative; /* needed for absolute menu */
+    margin-left: 8px;   /* or 4px; up to you */
+  }
+  
+  .account-icon {
+    margin-right: 4px; /* space between icon & arrow */
+  }
+  
+  /* same color/triangle spacing as .pillar-arrow */
+  .account-arrow {
+    font-weight: bold;
+    pointer-events: none;
+    color: black;
+    margin-left: 4px;
+  }
+
+  .account-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;        /* align to the right edge of the button if you like */
+    margin-top: 2px;
+    background: black;
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    box-shadow:
+      0 0 6px rgba(0,255,0,0.4),
+      inset -1px -1px 0 #003300,
+      inset 1px 1px 0 #99ff99;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 140px; /* bigger if you want more text space */
+    z-index: 9999;
+  }
+  .account-menu li {
+    padding: 6px 8px;
+    border-bottom: 1px dotted #00ff00;
+    font-family: "Courier New", monospace;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .account-menu li.account-username {
+    cursor: default;       /* no pointer hand */
+    font-weight: bold;
+    background: none;      /* no highlight by default */
+    border-bottom: none !important;
+    padding-bottom: 8px;   /* extra spacing if desired */
+    position: relative;    /* if you have a pseudo-line or something */
+  }
+  .account-menu li:last-child {
+    border-bottom: none;
+  }
+  .account-menu li:hover {
+    background: rgba(0,255,0,0.2);
+  }
+  .account-menu li.account-username:hover {
+    background: none !important; /* ensures no highlight color on hover */
+    cursor: default;            /* re-assert the default arrow cursor */
+  }
+  /* 10) Slide+fade for the .account-menu ONLY (pillar menu unchanged) */
+
+/* Default (closed) state => hidden & slightly above */
+.pillar-menu,
+.account-menu {
+  transform: translateY(-5px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* “Open” state => fully visible & clickable */
+.pillar-menu.open,
+.account-menu.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.account-menu li.selected {
+  background: rgba(0,255,0,0.3); /* same as .pillar-menu li.selected */
 }
