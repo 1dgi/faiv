@@ -1,4 +1,4 @@
-![FAIV Screenshot](faiv-ss2.png)
+![FAIV Screenshot](faiv.png)
 
 # FAIV – Multi-Pillar Council Setup
 
