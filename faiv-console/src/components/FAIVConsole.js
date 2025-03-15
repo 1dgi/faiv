@@ -4,7 +4,7 @@ import "./FAIVConsole.css";
 /****************************************
  * 1) ASCII Loader Frames
  ****************************************/
-const asciiFrames = [
+const asciiFAIVFrames = [
   [
     "███████╗ █████╗ ██╗██╗   ██╗",
     "██╔════╝██╔══██╗██║██║   ██║",
@@ -28,6 +28,33 @@ const asciiFrames = [
     " ██╔══╝  ██╔══██║██║╚██╗ ██╔╝",
     " ██║     ██║  ██║██║ ╚████╔╝ ",
     " ╚═╝     ██╔═╝  ╚═╝╚═╝  ╚═══╝  ",
+  ],
+];
+// New "V" logo frames
+const asciiVFrames = [
+  [
+    "██╗   ██╗",
+    "██║   ██║",
+    "██║   ██║",
+    "╚██╗ ██╔╝",
+    " ╚████╔╝ ",
+    "  ╚═══╝  ",
+  ],
+  [
+    " ██╗   ██╗",
+    "██║   ██║",
+    "██║   ██║",
+    "╚██╗ ██╔╝",
+    " ╚████╔╝",
+    "  ╚═══╝ ",
+  ],
+  [
+    "  ██╗   ██╗",
+    " ██║   ██║",
+    " ██║   ██║",
+    " ╚██╗ ██╔╝",
+    "  ╚████╔╝ ",
+    "   ╚═══╝  ",
   ],
 ];
 
@@ -152,6 +179,9 @@ export default function FAIVConsole() {
   const [asciiFrame, setAsciiFrame] = useState(0);
   const [progress, setProgress] = useState(0);
 
+  // THIS WAS MISSING:
+  const [useVLogo, setUseVLogo] = useState(false);
+
   // Pillar dropdown
   const [selectedPillar, setSelectedPillar] = useState("FAIV");
   const [pillarOpen, setPillarOpen] = useState(false);
@@ -224,14 +254,19 @@ export default function FAIVConsole() {
     let interval;
     if (loading) {
       interval = setInterval(() => {
-        setAsciiFrame((prev) => (prev + 1) % asciiFrames.length);
+        setAsciiFrame((prev) => {
+          const frames = useVLogo ? asciiVFrames : asciiFAIVFrames;
+          return (prev + 1) % frames.length;
+        });
       }, 400);
     } else {
       setAsciiFrame(0);
+      setUseVLogo((prev) => !prev); // Alternates logos after loading each time
     }
     return () => clearInterval(interval);
-  }, [loading]);
-
+  }, [loading, useVLogo]);
+    
+    
   // 6) Helpers
   const currentSession = allSessions[activeSessionId];
   const currentMessages = currentSession ? currentSession.messages : [];
@@ -493,42 +528,43 @@ export default function FAIVConsole() {
 
           {/* The main console area + loader */}
           <div className={`right-console-body ${loading ? "loading" : ""}`}>
-            {loading ? (
-              <div className="ascii-loader">
-                {asciiFrames[asciiFrame].map((line, i) => (
-                  <pre key={i} className="ascii-logo">
-                    {line}
-                  </pre>
-                ))}
-                <div className="progress-bar">
-                  {"["}
-                  {"█".repeat(Math.round(progress / 10))}
-                  {"▒".repeat(10 - Math.round(progress / 10))}
-                  {"]"}
+          {loading ? (
+          <div className="ascii-loader">
+            {(useVLogo ? asciiVFrames : asciiFAIVFrames)[asciiFrame].map((line, i) => (
+              <pre key={i} className="ascii-logo">
+                {line}
+              </pre>
+            ))}
+            <div className="progress-bar">
+              {"["}
+              {"█".repeat(Math.round(progress / 10))}
+              {"▒".repeat(10 - Math.round(progress / 10))}
+              {"]"}
+            </div>
+          </div>
+        ) : (
+          <div className="console-output">
+            {currentMessages.map((msg, idx) => {
+              if (msg === "-----") {
+                return <div key={idx} className="separator-line" />;
+              }
+              if (
+                msg.includes("FAIV Consensus:") ||
+                msg.includes("Confidence Score:")
+              ) {
+                return (
+                  <div key={idx} className="console-line">
+                    {extractFinalOutput(msg)}
+                  </div>
+                );
+              }
+              return (
+                <div key={idx} className="console-line">
+                  {msg}
                 </div>
-              </div>
-            ) : (
-              <div className="console-output">
-                {currentMessages.map((msg, idx) => {
-                  if (msg === "-----") {
-                    return <div key={idx} className="separator-line" />;
-                  }
-                  if (
-                    msg.includes("FAIV Consensus:") ||
-                    msg.includes("Confidence Score:")
-                  ) {
-                    return (
-                      <div key={idx} className="console-line">
-                        {extractFinalOutput(msg)}
-                      </div>
-                    );
-                  }
-                  return (
-                    <div key={idx} className="console-line">
-                      {msg}
-                    </div>
-                  );
-                })}
+              );
+            })}
+
               </div>
             )}
           </div>

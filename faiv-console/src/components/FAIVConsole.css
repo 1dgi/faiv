@@ -536,3 +536,9 @@ body {
 .account-menu li.selected {
   background: rgba(0,255,0,0.3); /* same as .pillar-menu li.selected */
 }
+.ascii-logo {
+  margin: 0;
+  white-space: pre;
+  line-height: 1.1;
+  font-family: "Courier New", monospace;
+}
