@@ -1,159 +1,544 @@
-/* 🔹 FAIV Console Styling */
+/* =========================================
+   1) Global & Body
+========================================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+*, *::before, *::after {
+  box-sizing: inherit;
+}
 body {
-    background-color: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-family: "Courier New", monospace;
-  }
-  
-  .console-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  
-  .console-window {
-    width: 600px;
-    background: #111;
-    border: 4px solid #00ff00;
-    padding: 10px;
-    text-align: left;
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-  }
-  
-  .console-title-bar {
-    background: #00ff00;
-    color: black;
-    font-weight: bold;
-    padding: 5px;
-    text-align: center;
-    font-size: 16px;
-  }
-  
-  .console-body {
-    height: 300px;
-    overflow-y: auto;
-    padding: 5px;
-    border: 2px solid #00ff00;
-    background: black;
-    color: #00ff00;
-    font-size: 14px;
-    line-height: 1.5;
-    font-family: "Courier New", monospace;
-    white-space: pre-wrap;
-  }
-  
-  .console-line {
-    padding: 2px;
-  }
-  
-  .console-input {
-    display: flex;
-    margin-top: 5px;
-    border: 2px solid #00ff00;
-    padding: 5px;
-    background: black;
-  }
-  
-  .input-field {
-    flex-grow: 1;
-    background: black;
-    color: #00ff00;
-    border: none;
-    outline: none;
-    font-size: 14px;
-    padding: 5px;
-    font-family: "Courier New", monospace;
-  }
-  
-  .submit-btn {
-    background: #00ff00;
-    border: 2px solid black;
-    color: black;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 5px;
-    cursor: pointer;
-    font-family: "Courier New", monospace;
-  }
-  
-  .submit-btn:hover {
-    background: #33ff33;
-  }
-  
-  /* 🔹 ASCII Loading Animation */
-  .ascii-loader {
-    text-align: center;
-    font-size: 14px;
-    color: #00ff00;
-    font-family: "Courier New", monospace;
-    white-space: pre;
-    margin-top: 10px;
-  }
-  
-  .loading-animation {
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 10px;
-    color: #00ff00;
-  }
-  
-  .progress-bar {
-    font-size: 14px;
-    margin-top: 5px;
-    color: #00ff00;
-    font-weight: bold;
-  }
-  /* 🔹 Console Styling Improvements */
-.console-window {
-    width: 600px;
-    background: #111;
-    border: 4px solid #00ff00;
-    padding: 10px;
-    text-align: left;
-    box-shadow: inset -2px -2px 0px #003300, inset 2px 2px 0px #99ff99; /* 3D pixel effect */
+  font-family: "Courier New", monospace;
+  background: black;
+  color: #00ff00;
+  overflow: hidden; /* fill entire screen */
 }
 
-/* 🔹 Scrollbar Fix */
-.console-body {
-    height: 300px;
-    overflow-y: auto;
-    padding: 5px;
-    border: 2px solid #00ff00;
-    background: black;
-    color: #00ff00;
-    font-size: 14px;
-    font-family: "Courier New", monospace;
-    white-space: pre-wrap;
+/* Provide a bit of outer padding if desired */
+.outer-container {
+  width: 100vw;
+  height: 100vh;
+  padding: 2vh;
+  background: black;
 }
 
-/* 🔹 Scrollbar Styling */
-.console-body::-webkit-scrollbar {
-    width: 10px;
+/* Container holding the two windows side by side */
+.windows-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: black;
 }
 
-.console-body::-webkit-scrollbar-thumb {
-    background: #00ff00;
-    border-radius: 0px;
-    box-shadow: inset -2px -2px 0px #003300, inset 2px 2px 0px #99ff99; /* Pixelated scrollbar */
+/* =========================================
+   2) Retro Window Base
+========================================= */
+.retro-window {
+  display: flex;
+  flex-direction: column;
+  background: #000; 
+  height: 100%;
+
+  /* Thin 2px outer border so it matches everything else: */
+  border: 2px solid #00ff00;
+
+  /* Keep the “inset” effect but can reduce thickness if you want:
+     e.g. `inset -1px -1px 0 #003300, inset 1px 1px 0 #000000` 
+     so it doesn't get too thick visually. */
+  box-shadow:
+    0 0 8px rgba(0,255,0,0.5),
+    inset -1px -1px 0 #003300,
+    inset 1px 1px 0 #000000;
 }
 
-/* 🔹 Button Styling */
+/* Title Bar (same height for both windows) */
+.retro-title-bar {
+  display: flex;
+  align-items: center;
+  background: #00ff00;
+  color: black;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 6px 8px;
+
+  box-shadow:
+    inset -1px -1px 0 #003300,
+    inset 1px 1px 0 #99ff99;
+
+  height: 30px; /* pick a consistent bar height */
+  position: relative;
+}
+
+/* =========================================
+   3) Left Window (History)
+========================================= */
+.left-window {
+  width: 30%;
+}
+.left-title-bar {
+  justify-content: space-between;
+}
+
+/* The scrollable body of the left window */
+.left-window-body {
+  flex: 1;
+  overflow-y: auto;
+
+  /* Thin 2px top & bottom border inside the window: */
+  border-top: 2px solid #00ff00;
+  border-bottom: 0px solid #00ff00;
+  border-right:  0px solid #00ff00;
+
+  background: black;
+  padding: 8px;
+}
+
+/* Chat items, etc. */
+.chat-item {
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px dotted #00ff00;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.chat-item:hover {
+  background: rgba(0,255,0,0.1);
+}
+.chat-item.active {
+  background: rgba(0,255,0,0.2);
+}
+
+/* Hover trash icon => red */
+.chat-delete-btn {
+  background: transparent;
+  border: none;
+  color: #00ff00;
+  cursor: pointer;
+}
+.chat-delete-btn:hover svg {
+  fill: red !important;
+}
+
+/* =========================================
+   4) Right Window (Console)
+========================================= */
+.right-window {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-title-bar {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+/* The dropdown menu (unchanged) */
+.pillar-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 2px;
+  background: black;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  box-shadow:
+    0 0 6px rgba(0,255,0,0.4),
+    inset -1px -1px 0 #003300,
+    inset 1px 1px 0 #99ff99;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 120px;
+  z-index: 9999;
+}
+.pillar-menu li {
+  padding: 6px 8px;
+  border-bottom: 1px dotted #00ff00;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  cursor: pointer;
+}
+.pillar-menu li:last-child {
+  border-bottom: none;
+}
+.pillar-menu li:hover {
+  background: rgba(0,255,0,0.2);
+}
+.pillar-menu li.selected {
+  background: rgba(0,255,0,0.3);
+}
+
+/* Scrollable console area on the right */
+.right-console-body {
+  flex: 1;
+  overflow-y: auto;
+  border-top: 2px solid #00ff00;
+  background: black;
+  color: #00ff00;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px;
+}
+.right-console-body.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* lines in the console */
+.console-output {
+  display: flex;
+  flex-direction: column;
+}
+.console-line {
+  margin: 4px 0;
+}
+.separator-line {
+  width: 80%;
+  margin: 12px auto;
+  height: 1px;
+  background: rgba(255,255,255,0.125);
+}
+
+/* Single input bar at bottom:
+   use 2px top border to match everything else. */
+.console-input {
+  display: flex;
+  align-items: center;
+  background: black;
+  border-top: 2px solid #00ff00;
+  padding: 8px;
+  margin: 0;
+}
+.input-field {
+  flex: 1;
+  background: black;
+  color: #00ff00;
+  border: 2px solid #00ff00; /* keep text field border at 2px if you like */
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  padding: 4px;
+  margin-right: 8px;
+}
+
+/* =========================================
+   5) Loader / Scrollbars
+========================================= */
+.ascii-loader {
+  text-align: center;
+  color: #00ff00;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.ascii-logo {
+  margin: 0;
+  white-space: pre;
+  line-height: 1;
+}
+.progress-bar {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/* Custom scrollbars (unchanged) */
+.left-window-body::-webkit-scrollbar,
+.right-console-body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.left-window-body::-webkit-scrollbar-track,
+.right-console-body::-webkit-scrollbar-track {
+  background: black;
+}
+.left-window-body::-webkit-scrollbar-thumb,
+.right-console-body::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  box-shadow: inset -2px -2px 0 #003300, inset 2px 2px 0 #000000;
+}
+
+/* =========================================
+   6) Delete Confirm Modal
+========================================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.modal-box {
+  background: #111;
+  border: 2px solid #00ff00;
+  padding: 20px;
+  min-width: 300px;
+  color: #00ff00;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,255,0,0.6);
+}
+.modal-box h3 {
+  margin-top: 0;
+}
+.modal-box input {
+  width: 80%; /* keep or tweak if you want more/less width */
+  background: black;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  padding: 4px;
+
+  /* If you like a small margin on top/bottom: */
+  margin: 8px 0;
+
+  /* If you want to remove the focus ring: */
+  outline: none;
+}
+/* =========================================
+   Unified Retro-Button Style
+   For: .pillar-dropdown-wrapper, .new-chat-btn, .submit-btn
+========================================= */
+
+.pillar-dropdown-wrapper,
+.account-dropdown-wrapper,
+.new-chat-btn,
 .submit-btn {
-    background: #00ff00;
-    border: 2px solid black;
-    color: black;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 5px;
-    cursor: pointer;
-    font-family: "Courier New", monospace;
-    box-shadow: inset -2px -2px 0px #003300, inset 2px 2px 0px #99ff99; /* Pixel effect */
+  background-color: #00ff00;
+  color: #000;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+
+  /* Tweak as needed for uniform height/width. */
+  padding: 4px 8px;  
+
+  /* The old-school highlight + shadow (inset). */
+  box-shadow:
+    inset -1px -1px 0 #003300, /* top/left darker line */
+    inset 1px 1px 0 #99ff99;   /* bottom/right lighter line */
+  
+  /* Animate position & shadow changes */
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+
+  /* Keep text or icon centered */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Remove explicit borders if you want purely the box-shadow look */
+  border: none;
 }
 
+/* Hover => slightly move up/left. */
+.pillar-dropdown-wrapper:hover,
+.account-dropdown-wrapper:hover,
+.new-chat-btn:hover,
 .submit-btn:hover {
-    background: #33ff33;
+  transform: translate(-1px, -1px);
+}
+
+/* Clicked => pressed inwards. */
+.pillar-dropdown-wrapper:active,
+.account-dropdown-wrapper:active,
+.new-chat-btn:active,
+.submit-btn:active {
+  transform: translate(0px, 0px);
+  box-shadow:
+    inset -1px -1px 0 #99ff99,
+    inset 1px 1px 0 #003300;
+}
+
+/* You can still keep position: relative if needed for the dropdown to anchor its menu */
+.pillar-dropdown-wrapper {
+  position: relative; /* for .pillar-menu absolutely positioned below */
+  margin-left: 0px;   /* keep a small gap from any adjacent text or edges */
+}
+
+/* If you want the new chat button offset from the left title text */
+.new-chat-btn {
+  margin-left: 8px;
+}
+
+/* If your previous submit button had an explicit width or margin, keep them here. */
+.submit-btn {
+  font-weight: bold;
+}
+
+/* =========================================
+   7) Adjust Pillar Arrow Spacing
+========================================= */
+.pillar-arrow {
+  font-weight: bold;
+  pointer-events: none;
+  color: black;
+  margin-left: 4px; /* Add space before the triangle */
+}
+
+/* =========================================
+   8) Extend Retro Button Style to Modal Buttons
+========================================= */
+
+/* 8a) Add .modal-buttons button to the same unified style list. */
+.pillar-dropdown-wrapper,
+.new-chat-btn,
+.submit-btn,
+.modal-buttons button {
+  background-color: #00ff00;
+  color: #000;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: bold; /* all retro buttons now bold */
+  cursor: pointer;
+  padding: 4px 8px;
+  box-shadow:
+    inset -1px -1px 0 #003300,
+    inset 1px 1px 0 #99ff99;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+/* 8b) Hover => nudge up/left. */
+.pillar-dropdown-wrapper:hover,
+.new-chat-btn:hover,
+.submit-btn:hover,
+.modal-buttons button:hover {
+  transform: translate(-1px, -1px);
+}
+
+/* 8c) Active => pressed inwards. */
+.pillar-dropdown-wrapper:active,
+.new-chat-btn:active,
+.submit-btn:active,
+.modal-buttons button:active {
+  transform: translate(0, 0);
+  box-shadow:
+    inset -1px -1px 0 #99ff99,
+    inset 1px 1px 0 #003300;
+}
+
+/* 8d) If you want a disabled state to remain gray + unclickable: */
+.modal-buttons button:disabled {
+  background-color: #444;
+  color: #999;
+  cursor: not-allowed;
+  /* Flatten the box-shadow so it doesn’t “raise” */
+  box-shadow: inset 0 0 0 #000;
+  transform: none;
+}
+
+/* 9) Space the modal buttons properly. 
+   Center them horizontally with a gap. */
+   .modal-buttons {
+    display: flex;
+    justify-content: center; /* center horizontally */
+    gap: 16px;              /* space between buttons */
+    margin-top: 12px;       /* some top margin */
+  }
+  
+  .account-dropdown-wrapper {
+    position: relative; /* needed for absolute menu */
+    margin-left: 8px;   /* or 4px; up to you */
+  }
+  
+  .account-icon {
+    margin-right: 4px; /* space between icon & arrow */
+  }
+  
+  /* same color/triangle spacing as .pillar-arrow */
+  .account-arrow {
+    font-weight: bold;
+    pointer-events: none;
+    color: black;
+    margin-left: 4px;
+  }
+
+  .account-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;        /* align to the right edge of the button if you like */
+    margin-top: 2px;
+    background: black;
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    box-shadow:
+      0 0 6px rgba(0,255,0,0.4),
+      inset -1px -1px 0 #003300,
+      inset 1px 1px 0 #99ff99;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 140px; /* bigger if you want more text space */
+    z-index: 9999;
+  }
+  .account-menu li {
+    padding: 6px 8px;
+    border-bottom: 1px dotted #00ff00;
+    font-family: "Courier New", monospace;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .account-menu li.account-username {
+    cursor: default;       /* no pointer hand */
+    font-weight: bold;
+    background: none;      /* no highlight by default */
+    border-bottom: none !important;
+    padding-bottom: 8px;   /* extra spacing if desired */
+    position: relative;    /* if you have a pseudo-line or something */
+  }
+  .account-menu li:last-child {
+    border-bottom: none;
+  }
+  .account-menu li:hover {
+    background: rgba(0,255,0,0.2);
+  }
+  .account-menu li.account-username:hover {
+    background: none !important; /* ensures no highlight color on hover */
+    cursor: default;            /* re-assert the default arrow cursor */
+  }
+  /* 10) Slide+fade for the .account-menu ONLY (pillar menu unchanged) */
+
+/* Default (closed) state => hidden & slightly above */
+.pillar-menu,
+.account-menu {
+  transform: translateY(-5px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* “Open” state => fully visible & clickable */
+.pillar-menu.open,
+.account-menu.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.account-menu li.selected {
+  background: rgba(0,255,0,0.3); /* same as .pillar-menu li.selected */
+}
+.ascii-logo {
+  margin: 0;
+  white-space: pre;
+  line-height: 1.1;
+  font-family: "Courier New", monospace;
 }
